@@ -17,6 +17,7 @@ import matplotlib.ticker as ticker
 import numpy as np
 from os import system
 from nltk.translate.bleu_score import SmoothingFunction, sentence_bleu
+from dataLoader import TenseSet, readData
 
 """========================================================================================
 The sample.py includes the following template functions:
@@ -83,7 +84,7 @@ words = [['consult', 'consults', 'consulting', 'consulted'],
 
 the order should be : simple present, third person, present progressive, past
 ============================================================================"""
-
+MAX_LENGTH = 10
 
 # TODO: Survey the detail of Gaussian score
 def gaussian_score(words):
@@ -113,9 +114,11 @@ class EncoderRNN(nn.Module):
         self.gru = nn.GRU(hidden_size, hidden_size)
 
     def forward(self, input, hidden):
-        embedded = self.embedding(input).view(1, 1, -1)
-        output = embedded
-        output, hidden = self.gru(output, hidden)
+        # embedded = self.embedding(input).view(1, 1, -1)
+        embedded = self.embedding(input)
+        for word_vec in embedded:
+            tem = word_vec.view(1, 1, -1)
+            output, hidden = self.gru(tem, hidden)
         return output, hidden
 
     def initHidden(self):
@@ -171,8 +174,9 @@ def train(input_tensor, target_tensor, encoder, decoder, encoder_optimizer, deco
     if use_teacher_forcing:
         # Teacher forcing: Feed the target as the next input
         for di in range(target_length):
-            decoder_output, decoder_hidden, decoder_attention = decoder(
-                decoder_input, decoder_hidden, encoder_outputs)
+            # decoder_output, decoder_hidden, decoder_attention = decoder(
+            #     decoder_input, decoder_hidden, encoder_outputs)
+            decoder_output, decoder_hidden = decoder(decoder_input, decoder_hidden)
             loss += criterion(decoder_output, target_tensor[di])
             decoder_input = target_tensor[di]  # Teacher forcing
 
@@ -217,11 +221,14 @@ def trainIters(encoder, decoder, n_iters, print_every=1000, plot_every=100, lear
     print_loss_total = 0  # Reset every print_every
     plot_loss_total = 0  # Reset every plot_every
 
+    # Handle dataset
+    train_set = TenseSet(readData('data', 'train'))
+    pairs = train_set.get_pairs()
+
     encoder_optimizer = optim.SGD(encoder.parameters(), lr=learning_rate)
     decoder_optimizer = optim.SGD(decoder.parameters(), lr=learning_rate)
     # TODO: Need to handle the tensorsFromPair
-    training_pairs = [tensorsFromPair(random.choice(pairs))
-                      for i in range(n_iters)]
+    training_pairs = [random.choice(pairs) for i in range(n_iters)]
     criterion = nn.CrossEntropyLoss()
 
     for iter in range(1, n_iters + 1):
@@ -241,6 +248,7 @@ def trainIters(encoder, decoder, n_iters, print_every=1000, plot_every=100, lear
                                          iter, iter / n_iters * 100, print_loss_avg))
 
 
-encoder1 = EncoderRNN(vocab_size, hidden_size).to(device)
-decoder1 = DecoderRNN(hidden_size, vocab_size).to(device)
-trainIters(encoder1, decoder1, 75000, print_every=5000)
+if __name__ == "__main__":
+    encoder1 = EncoderRNN(vocab_size, hidden_size).to(device)
+    decoder1 = DecoderRNN(hidden_size, vocab_size).to(device)
+    trainIters(encoder1, decoder1, 75000, print_every=5000)

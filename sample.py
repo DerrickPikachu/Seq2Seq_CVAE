@@ -52,7 +52,7 @@ vocab_size = 28
 teacher_forcing_ratio = 1.0
 empty_input_ratio = 0.1
 KLD_weight = 0.0
-LR = 0.05
+LR = 0.01
 
 ################################
 # Example inputs of compute_bleu

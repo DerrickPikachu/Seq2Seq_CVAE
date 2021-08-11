@@ -46,13 +46,13 @@ SOS_token = 0
 EOS_token = 1
 
 # ----------Hyper Parameters----------#
-hidden_size = 256
+hidden_size = 128
 # The number of vocabulary
 vocab_size = 28
 teacher_forcing_ratio = 1.0
 empty_input_ratio = 0.1
 KLD_weight = 0.0
-LR = 0.005
+LR = 0.001
 weight_decay = 0.0001
 
 ################################
@@ -257,8 +257,6 @@ def trainIters(encoder, decoder, n_iters, print_every=1000, plot_every=100, lear
             print_loss_total = 0
             print('%s (%d %d%%) %.4f' % (timeSince(start, iter / n_iters),
                                          iter, iter / n_iters * 100, print_loss_avg))
-            print(encoder_optimizer.state_dict())
-            print(decoder_optimizer.state_dict())
 
 
 if __name__ == "__main__":

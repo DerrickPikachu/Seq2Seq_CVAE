@@ -120,6 +120,7 @@ class EncoderRNN(nn.Module):
         self.gru = nn.GRU(hidden_size, hidden_size)
         self.linear_mean = nn.Linear(in_features=hidden_size, out_features=hidden_size)
         self.linear_logvar = nn.Linear(in_features=hidden_size, out_features=hidden_size)
+        self.bn = nn.BatchNorm1d(num_features=1)
 
     def forward(self, input, hidden):
         # embedded = self.embedding(input).view(1, 1, -1)
@@ -128,6 +129,7 @@ class EncoderRNN(nn.Module):
             tem = word_vec.view(1, 1, -1)
             output, hidden = self.gru(tem, hidden)
 
+        hidden = self.bn(hidden)
         mean = self.linear_mean(hidden)
         logvar = self.linear_logvar(hidden)
         return mean, logvar

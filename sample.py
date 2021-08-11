@@ -52,7 +52,8 @@ vocab_size = 28
 teacher_forcing_ratio = 1.0
 empty_input_ratio = 0.1
 KLD_weight = 0.0
-LR = 0.01
+LR = 0.005
+weight_decay = 0.0001
 
 ################################
 # Example inputs of compute_bleu
@@ -234,8 +235,8 @@ def trainIters(encoder, decoder, n_iters, print_every=1000, plot_every=100, lear
     train_set = TenseSet(readData('data', 'train'))
     pairs = train_set.get_pairs()
 
-    encoder_optimizer = optim.SGD(encoder.parameters(), lr=learning_rate)
-    decoder_optimizer = optim.SGD(decoder.parameters(), lr=learning_rate)
+    encoder_optimizer = optim.SGD(encoder.parameters(), lr=learning_rate, weight_decay=weight_decay)
+    decoder_optimizer = optim.SGD(decoder.parameters(), lr=learning_rate, weight_decay=weight_decay)
     training_pairs = [random.choice(pairs) for i in range(n_iters)]
     criterion = nn.CrossEntropyLoss()
 

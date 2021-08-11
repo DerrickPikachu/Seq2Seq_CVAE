@@ -60,10 +60,12 @@ class TenseSet:
         for i in range(len(self.word_set)):
             for j in range(len(self.word_set[i])):
                 sequence = str2seq(self.word_set[i][j])
+                types = torch.zeros(4).type(dtype=torch.float)
+                types[j] = 1.
                 pairs.append((
                     sequence,
                     torch.cat([sequence, torch.tensor([EOS_token])]).view(-1, 1),
-                    j,
+                    types,
                 ))
 
         return pairs

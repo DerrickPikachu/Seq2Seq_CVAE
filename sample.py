@@ -103,15 +103,22 @@ def gaussian_score(words):
     return score / len(words)
 
 
+def reparameter(mu, log_var):
+    std = torch.exp(log_var * 0.5)
+    esp = torch.randn_like(std)
+    return mu + std * esp
+
+
 # Encoder
 class EncoderRNN(nn.Module):
     def __init__(self, input_size, hidden_size):
         super(EncoderRNN, self).__init__()
         self.hidden_size = hidden_size
 
-        # TODO: Need to survey what is nn.GRU and nn.Embedding
         self.embedding = nn.Embedding(input_size, hidden_size)
         self.gru = nn.GRU(hidden_size, hidden_size)
+        self.linear_mean = nn.Linear(in_features=hidden_size, out_features=hidden_size)
+        self.linear_logvar = nn.Linear(in_features=hidden_size, out_features=hidden_size)
 
     def forward(self, input, hidden):
         # embedded = self.embedding(input).view(1, 1, -1)
@@ -119,7 +126,10 @@ class EncoderRNN(nn.Module):
         for word_vec in embedded:
             tem = word_vec.view(1, 1, -1)
             output, hidden = self.gru(tem, hidden)
-        return output, hidden
+
+        mean = self.linear_mean(hidden)
+        logvar = self.linear_logvar(hidden)
+        return mean, logvar
 
     def initHidden(self):
         return torch.zeros(1, 1, self.hidden_size, device=device)
@@ -162,12 +172,11 @@ def train(input_tensor, target_tensor, encoder, decoder, encoder_optimizer, deco
     loss = 0
 
     # ----------sequence to sequence part for encoder----------#
-    encoder_output, encoder_hidden = encoder(input_tensor, encoder_hidden)
-
+    # encoder_output, encoder_hidden = encoder(input_tensor, encoder_hidden)
+    mean, logvar = encoder(input_tensor, encoder_hidden)
+    decoder_hidden = reparameter(mean, logvar)
     decoder_input = torch.tensor([[SOS_token]], device=device)
-
-    decoder_hidden = encoder_hidden
-
+    # decoder_hidden = encoder_hidden
     use_teacher_forcing = True if random.random() < teacher_forcing_ratio else False
 
     # ----------sequence to sequence part for decoder----------#
@@ -227,7 +236,6 @@ def trainIters(encoder, decoder, n_iters, print_every=1000, plot_every=100, lear
 
     encoder_optimizer = optim.SGD(encoder.parameters(), lr=learning_rate)
     decoder_optimizer = optim.SGD(decoder.parameters(), lr=learning_rate)
-    # TODO: Need to handle the tensorsFromPair
     training_pairs = [random.choice(pairs) for i in range(n_iters)]
     criterion = nn.CrossEntropyLoss()
 

@@ -265,6 +265,7 @@ def trainIters(encoder, decoder, n_iters, print_every=1000, plot_every=100, lear
             print('%s (%d %d%%) %.4f' % (timeSince(start, iter / n_iters),
                                          iter, iter / n_iters * 100, print_loss_avg))
 
+            # Show gradient
             for name, param in encoder.named_parameters():
                 print(name, param.grad)
 
@@ -272,4 +273,4 @@ def trainIters(encoder, decoder, n_iters, print_every=1000, plot_every=100, lear
 if __name__ == "__main__":
     encoder1 = EncoderRNN(vocab_size, hidden_size).to(device)
     decoder1 = DecoderRNN(hidden_size, vocab_size).to(device)
-    trainIters(encoder1, decoder1, 75000, print_every=5000, learning_rate=LR)
+    trainIters(encoder1, decoder1, 75000, print_every=1000, learning_rate=LR)

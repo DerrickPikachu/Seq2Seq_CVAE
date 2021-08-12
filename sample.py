@@ -116,6 +116,7 @@ class EncoderRNN(nn.Module):
         super(EncoderRNN, self).__init__()
         self.hidden_size = hidden_size
 
+        self.reformat = nn.Linear(in_features=hidden_size + 4, out_features=hidden_size)
         self.embedding = nn.Embedding(input_size, hidden_size)
         self.gru = nn.GRU(hidden_size, hidden_size)
         self.linear_mean = nn.Linear(in_features=hidden_size, out_features=hidden_size)
@@ -123,8 +124,9 @@ class EncoderRNN(nn.Module):
         # self.bn = nn.BatchNorm1d(num_features=1)
 
     def forward(self, input, hidden):
-        # embedded = self.embedding(input).view(1, 1, -1)
+        hidden = self.reformat(hidden)
         embedded = self.embedding(input)
+
         for word_vec in embedded:
             tem = word_vec.view(1, 1, -1)
             output, hidden = self.gru(tem, hidden)
@@ -134,8 +136,8 @@ class EncoderRNN(nn.Module):
         logvar = self.linear_logvar(hidden)
         return mean, logvar
 
-    def initHidden(self):
-        return torch.zeros(1, 1, self.hidden_size, device=device)
+    def initHidden(self, types):
+        return torch.cat([torch.zeros(1, 1, self.hidden_size, device=device), types.view(1, 1, -1)], dim=2)
 
 
 # Decoder
@@ -144,25 +146,28 @@ class DecoderRNN(nn.Module):
         super(DecoderRNN, self).__init__()
         self.hidden_size = hidden_size
 
+        self.reformat = nn.Linear(hidden_size + 4, hidden_size)
         self.embedding = nn.Embedding(output_size, hidden_size)
         self.gru = nn.GRU(hidden_size, hidden_size)
         self.out = nn.Linear(hidden_size, output_size)
         self.softmax = nn.LogSoftmax(dim=1)
 
     def forward(self, input, hidden):
+        if hidden.shape[2] > hidden_size:
+            hidden = self.reformat(hidden)
         output = self.embedding(input).view(1, 1, -1)
         output = F.relu(output)
         output, hidden = self.gru(output, hidden)
         output = self.out(output[0])
         return output, hidden
 
-    def initHidden(self):
-        return torch.zeros(1, 1, self.hidden_size, device=device)
+    def initHidden(self, origin_hidden, types):
+        return torch.cat([origin_hidden, types.view(1, 1, -1)], dim=2)
 
 
-def train(input_tensor, target_tensor, encoder, decoder, encoder_optimizer, decoder_optimizer, criterion,
+def train(input_tensor, target_tensor, types, encoder, decoder, encoder_optimizer, decoder_optimizer, criterion,
           max_length=MAX_LENGTH):
-    encoder_hidden = encoder.initHidden()
+    encoder_hidden = encoder.initHidden(types)
 
     encoder_optimizer.zero_grad()
     decoder_optimizer.zero_grad()
@@ -175,11 +180,10 @@ def train(input_tensor, target_tensor, encoder, decoder, encoder_optimizer, deco
     loss = 0
 
     # ----------sequence to sequence part for encoder----------#
-    # encoder_output, encoder_hidden = encoder(input_tensor, encoder_hidden)
     mean, logvar = encoder(input_tensor, encoder_hidden)
-    decoder_hidden = reparameter(mean, logvar)
+    # decoder_hidden = reparameter(mean, logvar)
+    decoder_hidden = decoder.initHidden(reparameter(mean, logvar), types)
     decoder_input = torch.tensor([[SOS_token]], device=device)
-    # decoder_hidden = encoder_hidden
     use_teacher_forcing = True if random.random() < teacher_forcing_ratio else False
 
     # ----------sequence to sequence part for decoder----------#
@@ -246,8 +250,9 @@ def trainIters(encoder, decoder, n_iters, print_every=1000, plot_every=100, lear
         training_pair = training_pairs[iter - 1]
         input_tensor = training_pair[0].to(device)
         target_tensor = training_pair[1].to(device)
+        types = training_pair[2].to(device)
 
-        loss = train(input_tensor, target_tensor, encoder,
+        loss = train(input_tensor, target_tensor, types, encoder,
                      decoder, encoder_optimizer, decoder_optimizer, criterion)
         print_loss_total += loss
         plot_loss_total += loss

@@ -272,4 +272,4 @@ def trainIters(encoder, decoder, n_iters, print_every=1000, plot_every=100, lear
 if __name__ == "__main__":
     encoder1 = EncoderRNN(vocab_size, hidden_size).to(device)
     decoder1 = DecoderRNN(hidden_size, vocab_size).to(device)
-    trainIters(encoder1, decoder1, 75000, print_every=5000)
+    trainIters(encoder1, decoder1, 75000, print_every=5000, learning_rate=LR)

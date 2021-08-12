@@ -46,7 +46,9 @@ SOS_token = 0
 EOS_token = 1
 
 # ----------Hyper Parameters----------#
-hidden_size = 128
+hidden_size = 64
+# encoder_hidden_size = 128
+# decoder_hidden_size = 32
 # The number of vocabulary
 vocab_size = 28
 teacher_forcing_ratio = 1.0

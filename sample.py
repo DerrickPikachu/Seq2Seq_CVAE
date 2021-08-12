@@ -266,8 +266,8 @@ def trainIters(encoder, decoder, n_iters, print_every=1000, plot_every=100, lear
                                          iter, iter / n_iters * 100, print_loss_avg))
 
             # Show gradient
-            for name, param in encoder.named_parameters():
-                print(name, param.grad)
+            # for name, param in encoder.named_parameters():
+            #     print(name, param.grad)
 
 
 if __name__ == "__main__":

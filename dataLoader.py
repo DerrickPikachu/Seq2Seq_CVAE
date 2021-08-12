@@ -45,8 +45,8 @@ class TenseSet:
             'pg': 2,
             'p': 3
         }
-        self.word_set = []
 
+        self.word_set = []
         for line in lines:
             self.word_set.append(line.split(' '))
 
@@ -71,8 +71,41 @@ class TenseSet:
         return pairs
 
 
+class TestSet(TenseSet):
+    def __init__(self, lines):
+        super(TestSet, self).__init__(lines)
+
+        # self.input_tense = [0, 0, 0, 0, 3, 0, 3, 2, 2, 2]
+        # self.target_tense = [3, 2, 1, 1, 1, 2, 0, 0, 3, 1]
+        self.tense_transpose = [
+            [0, 3], [0, 2], [0, 1], [0, 1], [3, 1],
+            [0, 2], [3, 0], [2, 0], [2, 3], [2, 1],
+        ]
+
+    def get_pairs(self):
+        pairs = []
+
+        for i in range(len(self.word_set)):
+            input_sequence = str2seq(self.word_set[i][0])
+            input_types = torch.zeros(4).type(dtype=torch.float)
+            input_types[self.tense_transpose[i][0]] = 1.
+
+            target_sequence = str2seq(self.word_set[i][1])
+            target_types = torch.zeros(4).type(dtype=torch.float)
+            target_types[self.tense_transpose[i][1]] = 1.
+            pairs.append((
+                input_sequence,
+                input_types,
+                torch.cat([target_sequence, torch.tensor([EOS_token])]).view(-1, 1),
+                target_types,
+            ))
+
+        return pairs
+
+
 if __name__ == "__main__":
-    lines = readData('data', 'train')
-    mySet = TenseSet(lines)
+    lines = readData('data', 'test')
+    # mySet = TenseSet(lines)
+    mySet = TestSet(lines)
     pairs = mySet.get_pairs()
-    print(pairs[0])
+    print(pairs)

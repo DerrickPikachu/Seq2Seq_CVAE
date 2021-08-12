@@ -265,6 +265,13 @@ def trainIters(encoder, decoder, n_iters, print_every=1000, plot_every=100, lear
             print('%s (%d %d%%) %.4f' % (timeSince(start, iter / n_iters),
                                          iter, iter / n_iters * 100, print_loss_avg))
 
+            for p, n in zip(encoder.parameters(), encoder._all_weights[0]):
+                if n[:6] == 'weight':
+                    print('=' * 6)
+                    print(f'ngradient: {n}')
+                    print('-' * 6)
+                    print(p.grad)
+
 
 if __name__ == "__main__":
     encoder1 = EncoderRNN(vocab_size, hidden_size).to(device)

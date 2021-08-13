@@ -53,6 +53,9 @@ hidden_size = 128
 vocab_size = 28
 teacher_forcing_ratio = 1.0
 empty_input_ratio = 0.1
+# KLD_weight with higher value giving more structured latent space but poorer reconstruction,
+# lower value giving better reconstruction with less structured latent space
+# (though their focus is specifically on learning disentangled representations)
 KLD_weight = 0.0
 LR = 0.001
 weight_decay = 0.0001
@@ -76,7 +79,7 @@ def train(input_tensor, target_tensor, types, encoder, decoder, encoder_optimize
     decoder_hidden = decoder.initHidden(reparameter(mean, logvar), types)
     decoder_input = torch.tensor([[SOS_token]], device=device)
     use_teacher_forcing = True if random.random() < teacher_forcing_ratio else False
-    loss = KLD_lose(mean, logvar)
+    loss = KLD_lose(mean, logvar) * KLD_weight
 
     # ----------sequence to sequence part for decoder----------#
     if use_teacher_forcing:

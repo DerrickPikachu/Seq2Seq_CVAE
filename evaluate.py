@@ -60,9 +60,9 @@ def evaluate(encoder: EncoderRNN, decoder: DecoderRNN, dataset: TestSet):
     reference = []
     for pair in pairs:
         input_seq, input_type, output_seq, output_type = pair
-        input_seq.to(device)
-        input_type.to(device)
-        output_type.to(device)
+        input_seq = input_seq.to(device)
+        input_type = input_type.to(device)
+        output_type = output_type.to(device)
 
         # encode
         encoder_hidden = encoder.initHidden(input_type)

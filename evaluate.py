@@ -80,7 +80,7 @@ def evaluate(encoder: EncoderRNN, decoder: DecoderRNN, dataset: TestSet):
             # Collect the output letters
             word += number2letter(decoder_input.item())
 
-        candidate.append(word)
+        candidate.append(word[:len(word) - 1])
         reference.append(output_seq)
 
     # Print the bleu score

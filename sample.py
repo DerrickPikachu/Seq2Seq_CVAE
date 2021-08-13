@@ -46,7 +46,7 @@ SOS_token = 0
 EOS_token = 1
 
 # ----------Hyper Parameters----------#
-hidden_size = 128
+hidden_size = 256
 # encoder_hidden_size = 128
 # decoder_hidden_size = 32
 # The number of vocabulary
@@ -177,4 +177,4 @@ def trainIters(encoder, decoder, n_iters, print_every=1000, plot_every=100, lear
 if __name__ == "__main__":
     encoder1 = EncoderRNN(vocab_size, hidden_size).to(device)
     decoder1 = DecoderRNN(hidden_size, vocab_size).to(device)
-    trainIters(encoder1, decoder1, 100000, print_every=1000, learning_rate=LR)
+    trainIters(encoder1, decoder1, 150000, print_every=1000, learning_rate=LR)

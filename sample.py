@@ -47,8 +47,6 @@ EOS_token = 1
 
 # ----------Hyper Parameters----------#
 hidden_size = 256
-# encoder_hidden_size = 128
-# decoder_hidden_size = 32
 # The number of vocabulary
 vocab_size = 28
 teacher_forcing_ratio = 1.0
@@ -56,9 +54,8 @@ empty_input_ratio = 0.1
 # KLD_weight with higher value giving more structured latent space but poorer reconstruction,
 # lower value giving better reconstruction with less structured latent space
 # (though their focus is specifically on learning disentangled representations)
-KLD_weight = 0.2
-LR = 0.001
-weight_decay = 0.0001
+KLD_weight = 0.0
+LR = 0.05
 MAX_LENGTH = 10
 
 
@@ -83,7 +80,7 @@ def train(input_tensor, target_tensor, types, encoder, decoder, encoder_optimize
     decoder_input = torch.tensor([[SOS_token]], device=device)
 
     use_teacher_forcing = True if random.random() < teacher_forcing_ratio else False
-    loss = (KLD_lose(**hidden_dis) + KLD_lose(**cell_dis)) * KLD_weight
+    loss = (KLD_lose(*hidden_dis) + KLD_lose(*cell_dis)) * KLD_weight
 
     # ----------sequence to sequence part for decoder----------#
     if use_teacher_forcing:
@@ -145,8 +142,8 @@ def trainIters(encoder, decoder, n_iters, print_every=1000, plot_every=100, lear
     test_set = TestSet(readData('data', 'test'))
     pairs = train_set.get_pairs()
 
-    encoder_optimizer = optim.SGD(encoder.parameters(), lr=learning_rate, weight_decay=weight_decay)
-    decoder_optimizer = optim.SGD(decoder.parameters(), lr=learning_rate, weight_decay=weight_decay)
+    encoder_optimizer = optim.SGD(encoder.parameters(), lr=learning_rate)
+    decoder_optimizer = optim.SGD(decoder.parameters(), lr=learning_rate)
     training_pairs = [random.choice(pairs) for i in range(n_iters)]
     criterion = nn.CrossEntropyLoss()
 

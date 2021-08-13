@@ -53,7 +53,6 @@ def gaussian_score(words):
 # TODO: Need test
 def evaluate(encoder: EncoderRNN, decoder: DecoderRNN, dataset: TestSet):
     encoder.eval(), decoder.eval()
-    # dataset = TestSet(readData('data', 'test'))
     pairs = dataset.get_pairs()
 
     candidate = []
@@ -66,15 +65,17 @@ def evaluate(encoder: EncoderRNN, decoder: DecoderRNN, dataset: TestSet):
 
         # encode
         encoder_hidden = encoder.initHidden(input_type)
-        mean, logvar = encoder(input_seq, encoder_hidden)
+        encoder_cell = encoder.initHidden(input_type)
+        hidden_dis, cell_dis = encoder(input_seq, encoder_hidden, encoder_cell)
 
         # decode
         decoder_input = torch.tensor([[SOS_token]], device=device)
-        decoder_hidden = reparameter(mean, logvar)
-        decoder_hidden = decoder.initHidden(decoder_hidden, output_type)
+        decoder_hidden = decoder.initHidden(reparameter(*hidden_dis), output_type)
+        decoder_cell = decoder.initHidden(reparameter(*cell_dis), output_type)
         word = ''
         while decoder_input.item() != EOS_token:
-            decoder_output, decoder_hidden = decoder(decoder_input, decoder_hidden)
+            decoder_output, decoder_hidden, decoder_cell = decoder(
+                decoder_input, decoder_hidden, decoder_cell)
             topv, topi = decoder_output.topk(1)
             decoder_input = topi.squeeze().detach()
             # Collect the output letters

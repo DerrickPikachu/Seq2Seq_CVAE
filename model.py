@@ -21,7 +21,6 @@ class EncoderRNN(nn.Module):
         self.reformat_hidden = nn.Linear(in_features=hidden_size + 4, out_features=hidden_size)
         self.reformat_cell = nn.Linear(in_features=hidden_size + 4, out_features=hidden_size)
         self.embedding = nn.Embedding(input_size, hidden_size)
-        # self.gru = nn.GRU(hidden_size, hidden_size)
         self.lstm = nn.LSTM(hidden_size, hidden_size)
         self.mean_hidden = nn.Linear(in_features=hidden_size, out_features=hidden_size)
         self.logvar_hidden = nn.Linear(in_features=hidden_size, out_features=hidden_size)
@@ -32,13 +31,10 @@ class EncoderRNN(nn.Module):
         # Reformat and word embedding
         hidden = self.reformat_hidden(hidden).view(1, 1, -1)
         cell = self.reformat_cell(cell).view(1, 1, -1)
-        embedded = self.embedding(input).view(10, 1, -1)  # 10 x hidden_size
+        embedded = self.embedding(input).view(len(input), 1, -1)  # len(input) x hidden_size
 
         # Do the rnn part
         output, (hidden, cell) = self.lstm(embedded, (hidden, cell))
-        # for word_vec in embedded:
-        #     tem = word_vec.view(1, 1, -1)
-        # output, hidden = self.gru(tem, hidden)
 
         # Compute the mean and variance
         mean_h, logvar_h = self.mean_hidden(hidden), self.logvar_hidden(hidden)
@@ -57,7 +53,6 @@ class DecoderRNN(nn.Module):
 
         self.reformat = nn.Linear(hidden_size + 4, hidden_size)
         self.embedding = nn.Embedding(output_size, hidden_size)
-        # self.gru = nn.GRU(hidden_size, hidden_size)
         self.lstm = nn.LSTM(hidden_size, hidden_size)
         self.out = nn.Linear(hidden_size, output_size)
         self.softmax = nn.LogSoftmax(dim=1)
@@ -70,7 +65,6 @@ class DecoderRNN(nn.Module):
         input = self.embedding(input).view(1, 1, -1)
         input = F.relu(input)
         output, (hidden, cell) = self.lstm(input, (hidden, cell))
-        # output, hidden = self.gru(output, hidden)
         output = self.out(output[0])
         return output, hidden, cell
 

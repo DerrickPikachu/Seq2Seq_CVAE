@@ -11,13 +11,14 @@ import torch.nn as nn
 from torch import optim
 import matplotlib.pyplot as plt
 from model import *
+from evaluate import evaluate
 
 plt.switch_backend('agg')
 import matplotlib.ticker as ticker
 import numpy as np
 from os import system
 from nltk.translate.bleu_score import SmoothingFunction, sentence_bleu
-from dataLoader import TenseSet, readData
+from dataLoader import TenseSet, readData, TestSet
 
 """========================================================================================
 The sample.py includes the following template functions:
@@ -134,6 +135,7 @@ def trainIters(encoder, decoder, n_iters, print_every=1000, plot_every=100, lear
 
     # Handle dataset
     train_set = TenseSet(readData('data', 'train'))
+    test_set = TestSet(readData('data', 'test'))
     pairs = train_set.get_pairs()
 
     encoder_optimizer = optim.SGD(encoder.parameters(), lr=learning_rate, weight_decay=weight_decay)
@@ -159,7 +161,7 @@ def trainIters(encoder, decoder, n_iters, print_every=1000, plot_every=100, lear
             print_loss_total = 0
             print('%s (%d %d%%) %.4f' % (timeSince(start, iter / n_iters),
                                          iter, iter / n_iters * 100, print_loss_avg))
-
+            evaluate(encoder, decoder, test_set)
             # Show gradient
             # for name, param in encoder.named_parameters():
             #     print(name, param.grad)

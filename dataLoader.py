@@ -95,13 +95,13 @@ class TestSet(TenseSet):
             input_types = torch.zeros(4).type(dtype=torch.float)
             input_types[self.tense_transpose[i][0]] = 1.
 
-            target_sequence = str2seq(self.word_set[i][1])
+            target_sequence = self.word_set[i][1]
             target_types = torch.zeros(4).type(dtype=torch.float)
             target_types[self.tense_transpose[i][1]] = 1.
             pairs.append((
                 input_sequence,
                 input_types,
-                torch.cat([target_sequence, torch.tensor([EOS_token])]).view(-1, 1),
+                target_sequence,
                 target_types,
             ))
 

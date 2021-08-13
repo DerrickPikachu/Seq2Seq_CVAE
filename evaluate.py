@@ -51,9 +51,9 @@ def gaussian_score(words):
 
 
 # TODO: Need test
-def evaluate(encoder: EncoderRNN, decoder: DecoderRNN):
+def evaluate(encoder: EncoderRNN, decoder: DecoderRNN, dataset: TestSet):
     encoder.eval(), decoder.eval()
-    dataset = TestSet(readData('data', 'test'))
+    # dataset = TestSet(readData('data', 'test'))
     pairs = dataset.get_pairs()
 
     candidate = []
@@ -61,7 +61,6 @@ def evaluate(encoder: EncoderRNN, decoder: DecoderRNN):
     for pair in pairs:
         input_seq, input_type, output_seq, output_type = pair
         input_seq.to(device)
-        output_seq.to(device)
 
         # encode
         encoder_hidden = encoder.initHidden(input_type)
@@ -80,13 +79,14 @@ def evaluate(encoder: EncoderRNN, decoder: DecoderRNN):
             word += number2letter(decoder_input.item())
 
         candidate.append(word)
-        reference.append(''.join([number2letter(val) for val in output_seq.item()]))
+        reference.append(output_seq)
 
     # Print the bleu score
     bleu_score = 0
     for i in range(len(candidate)):
         bleu_score += compute_bleu(candidate[i], reference[i])
-    print(f'Average BLEU-4 score : {bleu_score}')
+    print(candidate)
+    print(f'Average BLEU-4 score : {bleu_score / len(candidate)}')
 
 
 if __name__ == "__main__":

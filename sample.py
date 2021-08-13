@@ -65,6 +65,7 @@ MAX_LENGTH = 10
 def train(input_tensor, target_tensor, types, encoder, decoder, encoder_optimizer, decoder_optimizer, criterion,
           max_length=MAX_LENGTH):
     encoder_hidden = encoder.initHidden(types)
+    encoder_cell = encoder.initHidden(types)
 
     encoder_optimizer.zero_grad()
     decoder_optimizer.zero_grad()
@@ -75,11 +76,14 @@ def train(input_tensor, target_tensor, types, encoder, decoder, encoder_optimize
     encoder_outputs = torch.zeros(max_length, encoder.hidden_size, device=device)
 
     # ----------sequence to sequence part for encoder----------#
-    mean, logvar = encoder(input_tensor, encoder_hidden)
-    decoder_hidden = decoder.initHidden(reparameter(mean, logvar), types)
+    hidden_dis, cell_dis = encoder(input_tensor, encoder_hidden, encoder_cell)
+
+    decoder_hidden = decoder.initHidden(reparameter(hidden_dis[0], hidden_dis[1]), types)
+    decoder_cell = decoder.initHidden(reparameter(cell_dis[0], cell_dis[1]), types)
     decoder_input = torch.tensor([[SOS_token]], device=device)
+
     use_teacher_forcing = True if random.random() < teacher_forcing_ratio else False
-    loss = KLD_lose(mean, logvar) * KLD_weight
+    loss = (KLD_lose(**hidden_dis) + KLD_lose(**cell_dis)) * KLD_weight
 
     # ----------sequence to sequence part for decoder----------#
     if use_teacher_forcing:
@@ -87,15 +91,15 @@ def train(input_tensor, target_tensor, types, encoder, decoder, encoder_optimize
         for di in range(target_length):
             # decoder_output, decoder_hidden, decoder_attention = decoder(
             #     decoder_input, decoder_hidden, encoder_outputs)
-            decoder_output, decoder_hidden = decoder(decoder_input, decoder_hidden)
+            decoder_output, decoder_hidden, decoder_cell = decoder(
+                decoder_input, decoder_hidden, decoder_cell)
             loss += criterion(decoder_output, target_tensor[di])
             decoder_input = target_tensor[di]  # Teacher forcing
-
     else:
         # Without teacher forcing: use its own predictions as the next input
         for di in range(target_length):
-            decoder_output, decoder_hidden, decoder_attention = decoder(
-                decoder_input, decoder_hidden, encoder_outputs)
+            decoder_output, decoder_hidden, decoder_cell = decoder(
+                decoder_input, decoder_hidden, decoder_cell)
             # TODO: Survey topk
             topv, topi = decoder_output.topk(1)
             decoder_input = topi.squeeze().detach()  # detach from history as input
@@ -144,10 +148,10 @@ def trainIters(encoder, decoder, n_iters, print_every=1000, plot_every=100, lear
     encoder_optimizer = optim.SGD(encoder.parameters(), lr=learning_rate, weight_decay=weight_decay)
     decoder_optimizer = optim.SGD(decoder.parameters(), lr=learning_rate, weight_decay=weight_decay)
     training_pairs = [random.choice(pairs) for i in range(n_iters)]
-    # TODO: Apply KL divergence loss
     criterion = nn.CrossEntropyLoss()
 
     for iter in range(1, n_iters + 1):
+        # TODO: decrease the KLD_weight and teacher forcing ratio through the epochs
         encoder.train(), decoder.train()
         training_pair = training_pairs[iter - 1]
         input_tensor = training_pair[0].to(device)

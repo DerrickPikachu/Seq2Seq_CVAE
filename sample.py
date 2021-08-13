@@ -54,8 +54,8 @@ empty_input_ratio = 0.1
 # KLD_weight with higher value giving more structured latent space but poorer reconstruction,
 # lower value giving better reconstruction with less structured latent space
 # (though their focus is specifically on learning disentangled representations)
-KLD_weight = 0.0
-LR = 0.05
+KLD_weight = 0.1
+LR = 0.01
 MAX_LENGTH = 10
 
 

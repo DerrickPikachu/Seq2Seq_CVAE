@@ -61,6 +61,8 @@ def evaluate(encoder: EncoderRNN, decoder: DecoderRNN, dataset: TestSet):
     for pair in pairs:
         input_seq, input_type, output_seq, output_type = pair
         input_seq.to(device)
+        input_type.to(device)
+        output_type.to(device)
 
         # encode
         encoder_hidden = encoder.initHidden(input_type)

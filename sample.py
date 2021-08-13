@@ -70,14 +70,12 @@ def train(input_tensor, target_tensor, types, encoder, decoder, encoder_optimize
 
     encoder_outputs = torch.zeros(max_length, encoder.hidden_size, device=device)
 
-    loss = 0
-
     # ----------sequence to sequence part for encoder----------#
     mean, logvar = encoder(input_tensor, encoder_hidden)
-    # decoder_hidden = reparameter(mean, logvar)
     decoder_hidden = decoder.initHidden(reparameter(mean, logvar), types)
     decoder_input = torch.tensor([[SOS_token]], device=device)
     use_teacher_forcing = True if random.random() < teacher_forcing_ratio else False
+    loss = KLD_lose(mean, logvar)
 
     # ----------sequence to sequence part for decoder----------#
     if use_teacher_forcing:
@@ -122,6 +120,10 @@ def timeSince(since, percent):
     es = s / (percent)
     rs = es - s
     return '%s (- %s)' % (asMinutes(s), asMinutes(rs))
+
+
+def KLD_lose(mean, logvar):
+    return -0.5 * torch.sum(1 + logvar - mean.pow(2) - logvar.exp())
 
 
 def trainIters(encoder, decoder, n_iters, print_every=1000, plot_every=100, learning_rate=0.01):

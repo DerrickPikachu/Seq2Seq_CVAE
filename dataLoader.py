@@ -22,6 +22,11 @@ def letter2number(letter: str):
     return ord(letter[0]) - ord('a') + 2
 
 
+def number2letter(number: int):
+    asc_value = ord('a') + number - 2
+    return chr(asc_value)
+
+
 def str2seq(string: str):
     seq = []
     for c in string:

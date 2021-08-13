@@ -46,7 +46,7 @@ SOS_token = 0
 EOS_token = 1
 
 # ----------Hyper Parameters----------#
-hidden_size = 256
+hidden_size = 128
 # encoder_hidden_size = 128
 # decoder_hidden_size = 32
 # The number of vocabulary

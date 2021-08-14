@@ -56,7 +56,7 @@ empty_input_ratio = 0.1
 # KLD_weight with higher value giving more structured latent space but poorer reconstruction,
 # lower value giving better reconstruction with less structured latent space
 # (though their focus is specifically on learning disentangled representations)
-KLD_weight = 0.00001
+KLD_weight = 0.0
 LR = 0.01
 MAX_LENGTH = 10
 
@@ -144,7 +144,7 @@ def trainIters(encoder, decoder, n_iters, print_every=1000, plot_every=100, lear
     plot_losses = []
     print_loss_total = 0  # Reset every print_every
     plot_loss_total = 0  # Reset every plot_every
-    kld_delta = (0.2 - KLD_weight) / ((70000 - 30000) // print_every)
+    kld_delta = (0.1 - KLD_weight) / ((70000 - 30000) // print_every)
 
     # Best record and weight
     best_record = 0

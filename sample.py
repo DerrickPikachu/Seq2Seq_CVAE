@@ -154,7 +154,7 @@ def trainIters(encoder, decoder, n_iters, print_every=1000, plot_every=100, lear
     criterion = nn.CrossEntropyLoss()
 
     # Init training signal
-    kld_increase = True
+    kld_increase = False
 
     for iter in range(1, n_iters + 1):
         # TODO: decrease the KLD_weight and teacher forcing ratio through the epochs
@@ -169,8 +169,8 @@ def trainIters(encoder, decoder, n_iters, print_every=1000, plot_every=100, lear
         print_loss_total += ce_loss + kld_loss
         plot_loss_total += ce_loss + kld_loss
 
-        # if ce_loss.item() < 0.3:
-        #     kld_increase = True
+        if ce_loss.item() < 0.3:
+            kld_increase = True
 
         if iter % print_every == 0:
             print_loss_avg = print_loss_total / print_every

@@ -212,7 +212,7 @@ def trainIters(encoder, decoder, n_iters, print_every=1000, plot_every=100, lear
         # Cyclical kld annealing
         if iter % 1e4 == 0:
             KLD_weight = 0
-        elif KLD_weight < 1:
+        elif iter % 1e4 >= 5000:
             KLD_weight += kld_delta
 
     print('Finish')

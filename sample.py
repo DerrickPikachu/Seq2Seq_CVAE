@@ -80,7 +80,9 @@ def train(input_tensor, target_tensor, types, encoder, decoder, encoder_optimize
     decoder_input = torch.tensor([[SOS_token]], device=device)
 
     use_teacher_forcing = True if random.random() < teacher_forcing_ratio else False
-    loss = (KLD_lose(*hidden_dis) + KLD_lose(*cell_dis)) * KLD_weight
+    kld = KLD_lose(*hidden_dis) + KLD_lose(*cell_dis)
+    cross_entropy_lose = 0.
+    loss = kld * KLD_weight
 
     # ----------sequence to sequence part for decoder----------#
     if use_teacher_forcing:
@@ -90,7 +92,7 @@ def train(input_tensor, target_tensor, types, encoder, decoder, encoder_optimize
             #     decoder_input, decoder_hidden, encoder_outputs)
             decoder_output, decoder_hidden, decoder_cell = decoder(
                 decoder_input, decoder_hidden, decoder_cell)
-            loss += criterion(decoder_output, target_tensor[di])
+            cross_entropy_lose += criterion(decoder_output, target_tensor)
             decoder_input = target_tensor[di]  # Teacher forcing
     else:
         # Without teacher forcing: use its own predictions as the next input
@@ -101,16 +103,17 @@ def train(input_tensor, target_tensor, types, encoder, decoder, encoder_optimize
             topv, topi = decoder_output.topk(1)
             decoder_input = topi.squeeze().detach()  # detach from history as input
 
-            loss += criterion(decoder_output, target_tensor[di])
+            cross_entropy_lose += criterion(decoder_output, target_tensor[di])
             if decoder_input.item() == EOS_token:
                 break
 
+    loss += cross_entropy_lose
     loss.backward()
 
     encoder_optimizer.step()
     decoder_optimizer.step()
 
-    return loss.item() / target_length
+    return cross_entropy_lose.item() / target_length, kld
 
 
 def asMinutes(s):
@@ -155,16 +158,19 @@ def trainIters(encoder, decoder, n_iters, print_every=1000, plot_every=100, lear
         target_tensor = training_pair[1].to(device)
         types = training_pair[2].to(device)
 
-        loss = train(input_tensor, target_tensor, types, encoder,
-                     decoder, encoder_optimizer, decoder_optimizer, criterion)
-        print_loss_total += loss
-        plot_loss_total += loss
+        ce_loss, kld_loss = train(input_tensor, target_tensor, types, encoder,
+                                  decoder, encoder_optimizer, decoder_optimizer, criterion)
+        print_loss_total += ce_loss + kld_loss
+        plot_loss_total += ce_loss + kld_loss
 
         if iter % print_every == 0:
             print_loss_avg = print_loss_total / print_every
             print_loss_total = 0
             print('%s (%d %d%%) %.4f' % (timeSince(start, iter / n_iters),
                                          iter, iter / n_iters * 100, print_loss_avg))
+            print(f'cross_entropy: {ce_loss}')
+            print(f'KL divergence: {kld_loss}')
+            print('-' * 10)
             evaluate(encoder, decoder, test_set)
             # Show gradient
             # for name, param in encoder.named_parameters():

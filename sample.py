@@ -144,7 +144,7 @@ def trainIters(encoder, decoder, n_iters, print_every=1000, plot_every=100, lear
     plot_losses = []
     print_loss_total = 0  # Reset every print_every
     plot_loss_total = 0  # Reset every plot_every
-    kld_delta = (0.1 - KLD_weight) / ((70000 - 30000) // print_every)
+    kld_delta = (0.1 - KLD_weight) / ((50000 - 20000) // print_every)
 
     # Best record and weight
     best_record = 0
@@ -205,7 +205,7 @@ def trainIters(encoder, decoder, n_iters, print_every=1000, plot_every=100, lear
             print(f'Average BLEU-4 score : {bleu_score}')
             print('-' * 30)
 
-            if iter >= 30000 and iter < 70000:
+            if iter >= 20000 and iter < 50000:
                 KLD_weight += kld_delta
             # Show gradient
             # for name, param in encoder.named_parameters():

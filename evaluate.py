@@ -133,8 +133,8 @@ def evaluate_gaussian(decoder: DecoderRNN):
 
 if __name__ == "__main__":
     dataset = TestSet(readData('data', 'test'))
-    encoder = torch.load('bleu_encoder.pth')
-    decoder = torch.load('bleu_decoder.pth')
+    encoder = torch.load('gau_encoder.pth')
+    decoder = torch.load('gau_decoder.pth')
 
     generated_word, gau_score = evaluate_gaussian(decoder)
     print(generated_word)

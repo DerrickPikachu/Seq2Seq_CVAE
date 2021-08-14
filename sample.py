@@ -56,7 +56,7 @@ empty_input_ratio = 0.1
 # KLD_weight with higher value giving more structured latent space but poorer reconstruction,
 # lower value giving better reconstruction with less structured latent space
 # (though their focus is specifically on learning disentangled representations)
-KLD_weight = 0.0
+KLD_weight = 0.00001
 LR = 0.01
 MAX_LENGTH = 10
 
@@ -144,6 +144,7 @@ def trainIters(encoder, decoder, n_iters, print_every=1000, plot_every=100, lear
     plot_losses = []
     print_loss_total = 0  # Reset every print_every
     plot_loss_total = 0  # Reset every plot_every
+    kld_delta = (0.2 - KLD_weight) / ((70000 - 30000) // print_every)
 
     # Best record and weight
     best_record = 0
@@ -181,8 +182,8 @@ def trainIters(encoder, decoder, n_iters, print_every=1000, plot_every=100, lear
         # Change some hyper parameter
         # if ce_loss < 0.3 and iter > 20000:
         #     kld_increase = True
-        if iter == 20000:
-            KLD_weight = 0.2
+        # if iter >= 30000 and iter < 70000 and KLD_weight < 0.2:
+        #     KLD_weight += (0.2 - KLD_weight) / (70000 - iter)
 
         # Show the current status
         if iter % print_every == 0:
@@ -203,6 +204,9 @@ def trainIters(encoder, decoder, n_iters, print_every=1000, plot_every=100, lear
             print(f'KLD_weight: {KLD_weight}')
             print(f'Average BLEU-4 score : {bleu_score}')
             print('-' * 30)
+
+            if iter >= 30000 and iter < 70000:
+                KLD_weight += kld_delta
             # Show gradient
             # for name, param in encoder.named_parameters():
             #     print(name, param.grad)
@@ -222,4 +226,4 @@ def trainIters(encoder, decoder, n_iters, print_every=1000, plot_every=100, lear
 if __name__ == "__main__":
     encoder1 = EncoderRNN(vocab_size, hidden_size).to(device)
     decoder1 = DecoderRNN(hidden_size, vocab_size).to(device)
-    trainIters(encoder1, decoder1, 150000, print_every=1000, learning_rate=LR)
+    trainIters(encoder1, decoder1, 200000, print_every=1000, learning_rate=LR)

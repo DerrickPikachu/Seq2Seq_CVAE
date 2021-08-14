@@ -98,6 +98,7 @@ def sample_gaussian(dim):
 
 
 def evaluate_gaussian(decoder: DecoderRNN):
+    decoder.eval()
     words = []
 
     for i in range(100):
@@ -133,8 +134,8 @@ def evaluate_gaussian(decoder: DecoderRNN):
 
 if __name__ == "__main__":
     dataset = TestSet(readData('data', 'test'))
-    encoder = torch.load('gau_encoder.pth')
-    decoder = torch.load('gau_decoder.pth')
+    encoder = torch.load('gau_encoder.pth').to(device)
+    decoder = torch.load('gau_decoder.pth').to(device)
 
     generated_word, gau_score = evaluate_gaussian(decoder)
     print(generated_word)

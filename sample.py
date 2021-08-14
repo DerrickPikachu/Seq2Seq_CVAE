@@ -179,8 +179,8 @@ def trainIters(encoder, decoder, n_iters, print_every=1000, plot_every=100, lear
                                          iter, iter / n_iters * 100, print_loss_avg))
             print(f'cross_entropy: {ce_loss}')
             print(f'KL divergence: {kld_loss}')
-            print('-' * 10)
             evaluate(encoder, decoder, test_set)
+            print('-' * 30)
             # Show gradient
             # for name, param in encoder.named_parameters():
             #     print(name, param.grad)

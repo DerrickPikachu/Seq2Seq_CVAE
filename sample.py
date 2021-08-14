@@ -1,4 +1,6 @@
 from __future__ import unicode_literals, print_function, division
+
+import copy
 from io import open
 import unicodedata
 import string
@@ -137,10 +139,16 @@ def KLD_lose(mean, logvar):
 def trainIters(encoder, decoder, n_iters, print_every=1000, plot_every=100, learning_rate=0.01):
     global KLD_weight
 
+    # Init variable
     start = time.time()
     plot_losses = []
     print_loss_total = 0  # Reset every print_every
     plot_loss_total = 0  # Reset every plot_every
+
+    # Best record and weight
+    best_record = 0
+    best_encoder = None
+    best_decoder = None
 
     # Handle dataset
     train_set = TenseSet(readData('data', 'train'))
@@ -164,14 +172,27 @@ def trainIters(encoder, decoder, n_iters, print_every=1000, plot_every=100, lear
         target_tensor = training_pair[1].to(device)
         types = training_pair[2].to(device)
 
+        # Forward pass
         ce_loss, kld_loss = train(input_tensor, target_tensor, types, encoder,
                                   decoder, encoder_optimizer, decoder_optimizer, criterion)
         print_loss_total += ce_loss + kld_loss
         plot_loss_total += ce_loss + kld_loss
 
-        if ce_loss < 0.3 and iter > 20000:
-            kld_increase = True
+        # Record the best one
+        if iter >= 1000:
+            candidate, bleu_score = evaluate(encoder, decoder, test_set)
+            if bleu_score > best_record:
+                best_record = bleu_score
+                best_encoder = copy.deepcopy(encoder.state_dict())
+                best_decoder = copy.deepcopy(decoder.state_dict())
 
+        # Change some hyper parameter
+        # if ce_loss < 0.3 and iter > 20000:
+        #     kld_increase = True
+        if iter == 30000:
+            KLD_weight = 0.2
+
+        # Show the current status
         if iter % print_every == 0:
             print_loss_avg = print_loss_total / print_every
             print_loss_total = 0
@@ -179,7 +200,9 @@ def trainIters(encoder, decoder, n_iters, print_every=1000, plot_every=100, lear
                                          iter, iter / n_iters * 100, print_loss_avg))
             print(f'cross_entropy: {ce_loss}')
             print(f'KL divergence: {kld_loss}')
-            evaluate(encoder, decoder, test_set)
+            # print(candidate)
+            print(f'KLD_weight: {KLD_weight}')
+            print(f'Average BLEU-4 score : {bleu_score / len(candidate)}')
             print('-' * 30)
             # Show gradient
             # for name, param in encoder.named_parameters():
@@ -187,6 +210,14 @@ def trainIters(encoder, decoder, n_iters, print_every=1000, plot_every=100, lear
 
         if kld_increase:
             KLD_weight += (0.4 - KLD_weight) / (n_iters - iter + 1)
+
+    print('Finish')
+    print(f'Best BLEU-4: {best_record}')
+    print('save the model..')
+    encoder.load_state_dict(best_encoder)
+    decoder.load_state_dict(best_decoder)
+    torch.save(encoder, 'bleu_encoder.pth')
+    torch.save(decoder, 'bleu_decoder.pth')
 
 
 if __name__ == "__main__":

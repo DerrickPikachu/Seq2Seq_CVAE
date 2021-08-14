@@ -88,8 +88,10 @@ def evaluate(encoder: EncoderRNN, decoder: DecoderRNN, dataset: TestSet):
     bleu_score = 0
     for i in range(len(candidate)):
         bleu_score += compute_bleu(candidate[i], reference[i])
-    print(candidate)
-    print(f'Average BLEU-4 score : {bleu_score / len(candidate)}')
+    # print(candidate)
+    # print(f'Average BLEU-4 score : {bleu_score / len(candidate)}')
+
+    return candidate, bleu_score / len(candidate)
 
 
 if __name__ == "__main__":

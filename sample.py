@@ -115,7 +115,7 @@ def train(input_tensor, target_tensor, types, encoder, decoder, encoder_optimize
     encoder_optimizer.step()
     decoder_optimizer.step()
 
-    return cross_entropy_lose.item() / target_length, kld
+    return cross_entropy_lose.item() / target_length, kld, loss.item()
 
 
 def asMinutes(s):
@@ -173,10 +173,10 @@ def trainIters(encoder, decoder, n_iters, print_every=1000, plot_every=100, lear
         types = training_pair[2].to(device)
 
         # Forward pass
-        ce_loss, kld_loss = train(input_tensor, target_tensor, types, encoder,
+        ce_loss, kld_loss, loss = train(input_tensor, target_tensor, types, encoder,
                                   decoder, encoder_optimizer, decoder_optimizer, criterion)
-        print_loss_total += ce_loss + kld_loss
-        plot_loss_total += ce_loss + kld_loss
+        print_loss_total += loss
+        plot_loss_total += loss
 
         # Change some hyper parameter
         # if ce_loss < 0.3 and iter > 20000:
@@ -201,7 +201,7 @@ def trainIters(encoder, decoder, n_iters, print_every=1000, plot_every=100, lear
             print(f'KL divergence: {kld_loss}')
             # print(candidate)
             print(f'KLD_weight: {KLD_weight}')
-            print(f'Average BLEU-4 score : {bleu_score / len(candidate)}')
+            print(f'Average BLEU-4 score : {bleu_score}')
             print('-' * 30)
             # Show gradient
             # for name, param in encoder.named_parameters():

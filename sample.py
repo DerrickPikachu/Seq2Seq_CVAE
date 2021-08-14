@@ -144,7 +144,7 @@ def trainIters(encoder, decoder, n_iters, print_every=1000, plot_every=100, lear
     print_loss_total = 0  # Reset every print_every
     plot_loss_total = 0  # Reset every plot_every
     # kld_delta = (0.5 - KLD_weight) / ((n_iters - 20000) // print_every)
-    kld_delta = 0.5 / 5000
+    kld_delta = 0.5 / 10000
     teacher_forcing_delta = (teacher_forcing_ratio - 0.5) / ((n_iters // 2) // print_every)
 
     # Best record and weight
@@ -212,8 +212,7 @@ def trainIters(encoder, decoder, n_iters, print_every=1000, plot_every=100, lear
         # Cyclical kld annealing
         if iter % 1e4 == 0:
             KLD_weight = 0
-        elif iter % 1e4 >= 5000:
-            KLD_weight += kld_delta
+        KLD_weight += kld_delta
 
     print('Finish')
     # print(f'Best BLEU-4: {best_record}')

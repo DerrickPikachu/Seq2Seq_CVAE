@@ -181,7 +181,7 @@ def trainIters(encoder, decoder, n_iters, print_every=1000, plot_every=100, lear
         # Change some hyper parameter
         # if ce_loss < 0.3 and iter > 20000:
         #     kld_increase = True
-        if iter == 30000:
+        if iter == 20000:
             KLD_weight = 0.2
 
         # Show the current status

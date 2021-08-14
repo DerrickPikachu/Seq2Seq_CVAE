@@ -143,7 +143,8 @@ def trainIters(encoder, decoder, n_iters, print_every=1000, plot_every=100, lear
     plot_losses = []
     print_loss_total = 0  # Reset every print_every
     plot_loss_total = 0  # Reset every plot_every
-    kld_delta = (0.5 - KLD_weight) / ((n_iters - 20000) // print_every)
+    # kld_delta = (0.5 - KLD_weight) / ((n_iters - 20000) // print_every)
+    kld_delta = 1 / 5000
     teacher_forcing_delta = (teacher_forcing_ratio - 0.5) / ((n_iters // 2) // print_every)
 
     # Best record and weight
@@ -161,9 +162,6 @@ def trainIters(encoder, decoder, n_iters, print_every=1000, plot_every=100, lear
     decoder_optimizer = optim.SGD(decoder.parameters(), lr=learning_rate)
     training_pairs = [random.choice(pairs) for i in range(n_iters)]
     criterion = nn.CrossEntropyLoss()
-
-    # Init training signal
-    kld_increase = False
 
     for iter in range(1, n_iters + 1):
         # TODO: decrease the KLD_weight and teacher forcing ratio through the epochs
@@ -186,8 +184,8 @@ def trainIters(encoder, decoder, n_iters, print_every=1000, plot_every=100, lear
             # if bleu_score > best_record:
             if gau_score > best_record:
                 best_record = bleu_score
-                best_encoder = copy.deepcopy(encoder.state_dict())
-                best_decoder = copy.deepcopy(decoder.state_dict())
+                # best_encoder = copy.deepcopy(encoder.state_dict())
+                # best_decoder = copy.deepcopy(decoder.state_dict())
 
             print_loss_avg = print_loss_total / print_every
             print_loss_total = 0
@@ -204,20 +202,25 @@ def trainIters(encoder, decoder, n_iters, print_every=1000, plot_every=100, lear
             print('-' * 30)
 
             # Change the parameter status
-            if iter >= 20000:
-                KLD_weight += kld_delta
+            # if iter >= 20000:
+            #     KLD_weight += kld_delta
             if iter >= n_iters // 2:
                 teacher_forcing_ratio -= teacher_forcing_delta
 
-        if kld_increase:
-            KLD_weight += (0.4 - KLD_weight) / (n_iters - iter + 1)
+        # Cyclical kld annealing
+        if iter % 1e4 == 0:
+            KLD_weight = 0
+        elif KLD_weight < 1:
+            KLD_weight += kld_delta
+
+
 
     print('Finish')
     # print(f'Best BLEU-4: {best_record}')
     print(f'Best Gaussian score: {best_record}')
     print('save the model..')
-    encoder.load_state_dict(best_encoder)
-    decoder.load_state_dict(best_decoder)
+    # encoder.load_state_dict(best_encoder)
+    # decoder.load_state_dict(best_decoder)
     torch.save(encoder, 'gau_encoder.pth')
     torch.save(decoder, 'gau_decoder.pth')
 

@@ -98,7 +98,8 @@ if __name__ == "__main__":
     dataset = TestSet(readData('data', 'test'))
     encoder = torch.load('bleu_encoder.pth')
     decoder = torch.load('bleu_decoder.pth')
-    candidate, bleu = evaluate(encoder, decoder, dataset)
 
-    print(candidate)
-    print(f'BLEU-4 score: {bleu}')
+    for i in range(20):
+        candidate, bleu = evaluate(encoder, decoder, dataset)
+        print(candidate)
+        print(f'BLEU-4 score: {bleu}')

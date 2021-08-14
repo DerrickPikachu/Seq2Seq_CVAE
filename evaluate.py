@@ -37,7 +37,7 @@ the order should be : simple present, third person, present progressive, past
 def gaussian_score(words):
     words_list = []
     score = 0
-    yourpath = 'data'  # should be your directory of train.txt
+    yourpath = 'data/train.txt'  # should be your directory of train.txt
     with open(yourpath, 'r') as fp:
         for line in fp:
             word = line.split(' ')

@@ -99,7 +99,14 @@ if __name__ == "__main__":
     encoder = torch.load('bleu_encoder.pth')
     decoder = torch.load('bleu_decoder.pth')
 
+    best_bleu = 0
+    best_candidate = None
+
     for i in range(20):
         candidate, bleu = evaluate(encoder, decoder, dataset)
-        print(candidate)
-        print(f'BLEU-4 score: {bleu}')
+        if bleu > best_bleu:
+            best_bleu = bleu
+            best_candidate = candidate
+
+    print(best_candidate)
+    print(f'BLEU-4 score: {best_bleu}')

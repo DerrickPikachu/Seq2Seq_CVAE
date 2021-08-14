@@ -219,8 +219,8 @@ def trainIters(encoder, decoder, n_iters, print_every=1000, plot_every=100, lear
     print('save the model..')
     encoder.load_state_dict(best_encoder)
     decoder.load_state_dict(best_decoder)
-    torch.save(encoder, 'bleu_encoder.pth')
-    torch.save(decoder, 'bleu_decoder.pth')
+    torch.save(encoder, '_encoder.pth')
+    torch.save(decoder, '_decoder.pth')
 
 
 if __name__ == "__main__":

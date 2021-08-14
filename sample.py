@@ -180,7 +180,7 @@ def trainIters(encoder, decoder, n_iters, print_every=1000, plot_every=100, lear
         # Show the current status
         if iter % print_every == 0:
             candidate, bleu_score = evaluate(encoder, decoder, test_set)
-            _, gau_score = evaluate_gaussian(decoder)
+            generated_word, gau_score = evaluate_gaussian(decoder)
             # if bleu_score > best_record:
             if gau_score > best_record:
                 best_record = bleu_score
@@ -190,6 +190,7 @@ def trainIters(encoder, decoder, n_iters, print_every=1000, plot_every=100, lear
             print_loss_avg = print_loss_total / print_every
             print_loss_total = 0
 
+            print(generated_word)
             print('%s (%d %d%%) %.4f' % (timeSince(start, iter / n_iters),
                                          iter, iter / n_iters * 100, print_loss_avg))
             print(f'cross_entropy: {ce_loss}')

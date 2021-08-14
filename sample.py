@@ -13,7 +13,7 @@ import torch.nn as nn
 from torch import optim
 import matplotlib.pyplot as plt
 from model import *
-from evaluate import evaluate
+from evaluate import evaluate, evaluate_gaussian
 
 plt.switch_backend('agg')
 import matplotlib.ticker as ticker
@@ -136,13 +136,15 @@ def KLD_lose(mean, logvar):
 
 def trainIters(encoder, decoder, n_iters, print_every=1000, plot_every=100, learning_rate=0.01):
     global KLD_weight
+    global teacher_forcing_ratio
 
     # Init variable
     start = time.time()
     plot_losses = []
     print_loss_total = 0  # Reset every print_every
     plot_loss_total = 0  # Reset every plot_every
-    kld_delta = (0.1 - KLD_weight) / ((50000 - 20000) // print_every)
+    kld_delta = (0.5 - KLD_weight) / ((n_iters - 20000) // print_every)
+    teacher_forcing_delta = (teacher_forcing_ratio - 0.5) / ((n_iters // 2) // print_every)
 
     # Best record and weight
     best_record = 0
@@ -177,16 +179,12 @@ def trainIters(encoder, decoder, n_iters, print_every=1000, plot_every=100, lear
         print_loss_total += loss
         plot_loss_total += loss
 
-        # Change some hyper parameter
-        # if ce_loss < 0.3 and iter > 20000:
-        #     kld_increase = True
-        # if iter >= 30000 and iter < 70000 and KLD_weight < 0.2:
-        #     KLD_weight += (0.2 - KLD_weight) / (70000 - iter)
-
         # Show the current status
         if iter % print_every == 0:
             candidate, bleu_score = evaluate(encoder, decoder, test_set)
-            if bleu_score > best_record:
+            _, gau_score = evaluate_gaussian(decoder)
+            # if bleu_score > best_record:
+            if gau_score > best_record:
                 best_record = bleu_score
                 best_encoder = copy.deepcopy(encoder.state_dict())
                 best_decoder = copy.deepcopy(decoder.state_dict())
@@ -200,25 +198,28 @@ def trainIters(encoder, decoder, n_iters, print_every=1000, plot_every=100, lear
             print(f'KL divergence: {kld_loss}')
             # print(candidate)
             print(f'KLD_weight: {KLD_weight}')
+            print(f'teacher forcing ratio: {teacher_forcing_ratio}')
             print(f'Average BLEU-4 score : {bleu_score}')
+            print(f'Gaussian score: {gau_score}')
             print('-' * 30)
 
-            if iter >= 20000 and iter < 50000:
+            # Change the parameter status
+            if iter >= 20000:
                 KLD_weight += kld_delta
-            # Show gradient
-            # for name, param in encoder.named_parameters():
-            #     print(name, param.grad)
+            if iter >= n_iters // 2:
+                teacher_forcing_ratio -= teacher_forcing_delta
 
         if kld_increase:
             KLD_weight += (0.4 - KLD_weight) / (n_iters - iter + 1)
 
     print('Finish')
-    print(f'Best BLEU-4: {best_record}')
+    # print(f'Best BLEU-4: {best_record}')
+    print(f'Best Gaussian score: {best_record}')
     print('save the model..')
     encoder.load_state_dict(best_encoder)
     decoder.load_state_dict(best_decoder)
-    torch.save(encoder, '_encoder.pth')
-    torch.save(decoder, '_decoder.pth')
+    torch.save(encoder, 'gau_encoder.pth')
+    torch.save(decoder, 'gau_decoder.pth')
 
 
 if __name__ == "__main__":

@@ -56,7 +56,7 @@ empty_input_ratio = 0.1
 # KLD_weight with higher value giving more structured latent space but poorer reconstruction,
 # lower value giving better reconstruction with less structured latent space
 # (though their focus is specifically on learning disentangled representations)
-KLD_weight = 0.0
+KLD_weight = 0.00001
 LR = 0.01
 MAX_LENGTH = 10
 
@@ -181,8 +181,8 @@ def trainIters(encoder, decoder, n_iters, print_every=1000, plot_every=100, lear
         # Change some hyper parameter
         # if ce_loss < 0.3 and iter > 20000:
         #     kld_increase = True
-        if iter == 30000:
-            KLD_weight = 0.2
+        if iter >= 30000 and iter < 70000 and KLD_weight < 0.2:
+            KLD_weight += (0.2 - KLD_weight) / (70000 - iter)
 
         # Show the current status
         if iter % print_every == 0:
@@ -222,4 +222,4 @@ def trainIters(encoder, decoder, n_iters, print_every=1000, plot_every=100, lear
 if __name__ == "__main__":
     encoder1 = EncoderRNN(vocab_size, hidden_size).to(device)
     decoder1 = DecoderRNN(hidden_size, vocab_size).to(device)
-    trainIters(encoder1, decoder1, 150000, print_every=1000, learning_rate=LR)
+    trainIters(encoder1, decoder1, 200000, print_every=1000, learning_rate=LR)

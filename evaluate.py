@@ -100,7 +100,7 @@ def sample_gaussian(dim):
 def evaluate_gaussian(decoder: DecoderRNN):
     words = []
 
-    for i in range(11):
+    for i in range(100):
         hidden_esp = sample_gaussian(decoder.hidden_size)
         cell_esp = sample_gaussian(decoder.hidden_size)
         tense_list = []

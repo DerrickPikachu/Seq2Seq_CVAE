@@ -115,7 +115,7 @@ def train(input_tensor, target_tensor, types, encoder, decoder, encoder_optimize
     encoder_optimizer.step()
     decoder_optimizer.step()
 
-    return cross_entropy_lose.item() / target_length, kld, loss.item()
+    return cross_entropy_lose.item() / target_length, kld, loss.item() / target_length
 
 
 def asMinutes(s):

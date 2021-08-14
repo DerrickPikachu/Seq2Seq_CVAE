@@ -94,19 +94,61 @@ def evaluate(encoder: EncoderRNN, decoder: DecoderRNN, dataset: TestSet):
     return candidate, bleu_score / len(candidate)
 
 
+def sample_gaussian(dim):
+    return torch.randn_like(torch.zeros(dim))
+
+
+def evaluate_gaussian(decoder: DecoderRNN):
+    words = []
+
+    for i in range(11):
+        hidden_esp = sample_gaussian(decoder.hidden_size)
+        cell_esp = sample_gaussian(decoder.hidden_size)
+        tense_list = []
+
+        for type in range(4):
+            hidden_type = torch.zeros(4).type(dtype=torch.float)
+            cell_type = torch.zeros(4).type(dtype=torch.float)
+            hidden_type[type] = 1.
+            cell_type[type] = 1.
+
+            hidden = torch.cat([hidden_esp, hidden_type])
+            cell = torch.cat([cell_esp, cell_type])
+            hidden = hidden.to(device).view(1, 1, -1)
+            cell = cell.to(device).view(1, 1, -1)
+            decoder_input = torch.tensor([[SOS_token]], device=device)
+
+            word = ''
+            while decoder_input.item() != EOS_token:
+                decoder_output, hidden, cell = decoder(decoder_input, hidden, cell)
+                topv, topi = decoder_output.topk(1)
+                decoder_input = topi.squeeze().detach()
+                word += number2letter(decoder_input.item())
+
+            tense_list.append(word[:len(word) - 1])
+
+        words.append(tense_list)
+
+    return words, gaussian_score(words)
+
+
 if __name__ == "__main__":
     dataset = TestSet(readData('data', 'test'))
     encoder = torch.load('bleu_encoder.pth')
     decoder = torch.load('bleu_decoder.pth')
 
-    best_bleu = 0
-    best_candidate = None
+    generated_word, gau_score = evaluate_gaussian(decoder)
+    print(generated_word)
+    print(f'Gaussian score: {gau_score}')
 
-    for i in range(20):
-        candidate, bleu = evaluate(encoder, decoder, dataset)
-        if bleu > best_bleu:
-            best_bleu = bleu
-            best_candidate = candidate
-
-    print(best_candidate)
-    print(f'BLEU-4 score: {best_bleu}')
+    # best_bleu = 0
+    # best_candidate = None
+    #
+    # for i in range(20):
+    #     candidate, bleu = evaluate(encoder, decoder, dataset)
+    #     if bleu > best_bleu:
+    #         best_bleu = bleu
+    #         best_candidate = candidate
+    #
+    # print(best_candidate)
+    # print(f'BLEU-4 score: {best_bleu}')

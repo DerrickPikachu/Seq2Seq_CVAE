@@ -46,7 +46,7 @@ SOS_token = 0
 EOS_token = 1
 
 # ----------Hyper Parameters----------#
-hidden_size = 512
+hidden_size = 256
 # The number of vocabulary
 vocab_size = 28
 teacher_forcing_ratio = 1.0
@@ -55,7 +55,7 @@ empty_input_ratio = 0.1
 # lower value giving better reconstruction with less structured latent space
 # (though their focus is specifically on learning disentangled representations)
 KLD_weight = 0.0
-LR = 0.05
+LR = 0.01
 MAX_LENGTH = 10
 
 

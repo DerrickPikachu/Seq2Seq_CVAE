@@ -201,19 +201,18 @@ def trainIters(encoder, decoder, n_iters, print_every=1000, plot_every=100, lear
             print(f'Gaussian score: {gau_score}')
             print('-' * 30)
 
-            # Change the parameter status
+            # Monotonic kld annealing
             # if iter >= 20000:
             #     KLD_weight += kld_delta
-            if iter >= n_iters // 2:
-                teacher_forcing_ratio -= teacher_forcing_delta
+            # Teacher forcing decrease
+            # if iter >= n_iters // 2:
+            #     teacher_forcing_ratio -= teacher_forcing_delta
 
         # Cyclical kld annealing
         if iter % 1e4 == 0:
             KLD_weight = 0
         elif KLD_weight < 1:
             KLD_weight += kld_delta
-
-
 
     print('Finish')
     # print(f'Best BLEU-4: {best_record}')

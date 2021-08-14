@@ -95,4 +95,10 @@ def evaluate(encoder: EncoderRNN, decoder: DecoderRNN, dataset: TestSet):
 
 
 if __name__ == "__main__":
-    print(compute_bleu(['access', 'play'], ['access', 'play']))
+    dataset = TestSet(readData('data', 'test'))
+    encoder = torch.load('bleu_encoder.pth')
+    decoder = torch.load('bleu_decoder.pth')
+    candidate, bleu = evaluate(encoder, decoder, dataset)
+
+    print(candidate)
+    print(f'BLEU-4 score: {bleu}')

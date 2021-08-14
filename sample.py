@@ -169,7 +169,7 @@ def trainIters(encoder, decoder, n_iters, print_every=1000, plot_every=100, lear
         print_loss_total += ce_loss + kld_loss
         plot_loss_total += ce_loss + kld_loss
 
-        if ce_loss.item() < 0.3:
+        if ce_loss < 0.3:
             kld_increase = True
 
         if iter % print_every == 0:

@@ -92,7 +92,7 @@ def train(input_tensor, target_tensor, types, encoder, decoder, encoder_optimize
             #     decoder_input, decoder_hidden, encoder_outputs)
             decoder_output, decoder_hidden, decoder_cell = decoder(
                 decoder_input, decoder_hidden, decoder_cell)
-            cross_entropy_lose += criterion(decoder_output, target_tensor)
+            cross_entropy_lose += criterion(decoder_output, target_tensor[di])
             decoder_input = target_tensor[di]  # Teacher forcing
     else:
         # Without teacher forcing: use its own predictions as the next input
@@ -135,6 +135,8 @@ def KLD_lose(mean, logvar):
 
 
 def trainIters(encoder, decoder, n_iters, print_every=1000, plot_every=100, learning_rate=0.01):
+    global KLD_weight
+
     start = time.time()
     plot_losses = []
     print_loss_total = 0  # Reset every print_every
@@ -145,10 +147,14 @@ def trainIters(encoder, decoder, n_iters, print_every=1000, plot_every=100, lear
     test_set = TestSet(readData('data', 'test'))
     pairs = train_set.get_pairs()
 
+    # Init optimizer and loss function
     encoder_optimizer = optim.SGD(encoder.parameters(), lr=learning_rate)
     decoder_optimizer = optim.SGD(decoder.parameters(), lr=learning_rate)
     training_pairs = [random.choice(pairs) for i in range(n_iters)]
     criterion = nn.CrossEntropyLoss()
+
+    # Init training signal
+    kld_increase = True
 
     for iter in range(1, n_iters + 1):
         # TODO: decrease the KLD_weight and teacher forcing ratio through the epochs
@@ -163,6 +169,9 @@ def trainIters(encoder, decoder, n_iters, print_every=1000, plot_every=100, lear
         print_loss_total += ce_loss + kld_loss
         plot_loss_total += ce_loss + kld_loss
 
+        # if ce_loss.item() < 0.3:
+        #     kld_increase = True
+
         if iter % print_every == 0:
             print_loss_avg = print_loss_total / print_every
             print_loss_total = 0
@@ -175,6 +184,9 @@ def trainIters(encoder, decoder, n_iters, print_every=1000, plot_every=100, lear
             # Show gradient
             # for name, param in encoder.named_parameters():
             #     print(name, param.grad)
+
+        if kld_increase:
+            KLD_weight += (0.4 - KLD_weight) / (n_iters - iter)
 
 
 if __name__ == "__main__":

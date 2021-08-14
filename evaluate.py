@@ -37,7 +37,7 @@ the order should be : simple present, third person, present progressive, past
 def gaussian_score(words):
     words_list = []
     score = 0
-    yourpath = ''  # should be your directory of train.txt
+    yourpath = 'data'  # should be your directory of train.txt
     with open(yourpath, 'r') as fp:
         for line in fp:
             word = line.split(' ')
@@ -50,7 +50,6 @@ def gaussian_score(words):
     return score / len(words)
 
 
-# TODO: Need test
 def evaluate(encoder: EncoderRNN, decoder: DecoderRNN, dataset: TestSet):
     encoder.eval(), decoder.eval()
     pairs = dataset.get_pairs()

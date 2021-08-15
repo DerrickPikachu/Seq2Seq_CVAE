@@ -14,7 +14,6 @@ def draw_figure(points: int, data_dic: dict):
     fig, ax1 = plt.subplots()
     plt.title('Training loss/ratio curve')
     plt.xlabel('500 iteration(s)')
-    ax2 = ax1.twinx()
 
     x_axis = range(points)
 
@@ -23,6 +22,7 @@ def draw_figure(points: int, data_dic: dict):
     ax1.plot(x_axis, data_dic['entropy'], label='CrossEntropy', linewidth=2)
     ax1.tick_params(axis='y')
 
+    ax2 = ax1.twinx()
     ax2.set_ylabel('score/weight')
     ax2.plot(x_axis, data_dic['bleu'], 'ro', label='BLEU4-score', color='green')
     ax2.plot(x_axis, data_dic['kld_weight'], label='KLD_weight', color='red', linestyle='--')
@@ -30,8 +30,8 @@ def draw_figure(points: int, data_dic: dict):
     ax2.plot(x_axis, data_dic['gau'], 'ro', label='Gaussian Score', color='brown')
     ax2.tick_params(axis='y')
 
-    fig.tight_layout()
-    plt.legend()
+    # fig.tight_layout()
+    fig.legend()
     # plt.show()
     plt.savefig('train_figure1.png')
 
@@ -45,7 +45,7 @@ if __name__ == "__main__":
         'tf_ratio': [1, 1, 1, 1, 1],
         'gau': [0, 0, 0.05, 0.12, 0.25]
     }
-    # draw_figure(5, dic)
+    draw_figure(5, dic)
 
     # f = open('test', 'wb')
     # pickle.dump(dic, f)

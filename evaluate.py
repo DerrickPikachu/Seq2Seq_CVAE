@@ -134,8 +134,8 @@ def evaluate_gaussian(decoder: DecoderRNN):
 
 if __name__ == "__main__":
     dataset = TestSet(readData('data', 'test'))
-    encoder = torch.load('gau_encoder.pth').to(device)
-    decoder = torch.load('gau_decoder.pth').to(device)
+    encoder = torch.load('gau_encoder2.pth').to(device)
+    decoder = torch.load('gau_decoder2.pth').to(device)
 
     generated_word, gau_score = evaluate_gaussian(decoder)
     # print(generated_word)
@@ -144,12 +144,12 @@ if __name__ == "__main__":
     best_bleu = 0
     best_candidate = None
 
-    for i in range(10):
+    for i in range(100):
         candidate, bleu = evaluate(encoder, decoder, dataset)
-        best_bleu += bleu
-        # if bleu > best_bleu:
-        #     best_bleu = bleu
-        #     best_candidate = candidate
+        # best_bleu += bleu
+        if bleu > best_bleu:
+            best_bleu = bleu
+            best_candidate = candidate
 
     # print(best_candidate)
-    print(f'BLEU-4 score: {best_bleu / 10}')
+    print(f'BLEU-4 score: {best_bleu}')

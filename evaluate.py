@@ -138,17 +138,17 @@ if __name__ == "__main__":
     decoder = torch.load('gau_decoder.pth').to(device)
 
     generated_word, gau_score = evaluate_gaussian(decoder)
-    print(generated_word)
+    # print(generated_word)
     print(f'Gaussian score: {gau_score}')
 
-    # best_bleu = 0
-    # best_candidate = None
-    #
-    # for i in range(20):
-    #     candidate, bleu = evaluate(encoder, decoder, dataset)
-    #     if bleu > best_bleu:
-    #         best_bleu = bleu
-    #         best_candidate = candidate
-    #
-    # print(best_candidate)
-    # print(f'BLEU-4 score: {best_bleu}')
+    best_bleu = 0
+    best_candidate = None
+
+    for i in range(20):
+        candidate, bleu = evaluate(encoder, decoder, dataset)
+        if bleu > best_bleu:
+            best_bleu = bleu
+            best_candidate = candidate
+
+    print(best_candidate)
+    print(f'BLEU-4 score: {best_bleu}')

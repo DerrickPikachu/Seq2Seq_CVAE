@@ -37,17 +37,17 @@ def draw_figure(points: int, data_dic: dict):
 
 
 if __name__ == "__main__":
-    dic = {
-        'kld': [100, 200, 250, 270, 350],
-        'entropy': [2.5, 1.7, 1.3, 1.2, 0.9],
-        'bleu': [0.02, 0.34, 0.52, 0.44, 0.62],
-        'kld_weight': [0.2, 0.4, 0, 0.1, 0.3],
-        'tf_ratio': [1, 1, 1, 1, 1],
-        'gau': [0, 0, 0.05, 0.12, 0.25]
-    }
-    # file = open('record', 'rb')
-    # dic = pickle.load(file)
-    draw_figure(5, dic)
+    # dic = {
+    #     'kld': [100, 200, 250, 270, 350],
+    #     'entropy': [2.5, 1.7, 1.3, 1.2, 0.9],
+    #     'bleu': [0.02, 0.34, 0.52, 0.44, 0.62],
+    #     'kld_weight': [0.2, 0.4, 0, 0.1, 0.3],
+    #     'tf_ratio': [1, 1, 1, 1, 1],
+    #     'gau': [0, 0, 0.05, 0.12, 0.25]
+    # }
+    file = open('record', 'rb')
+    dic = pickle.load(file)
+    draw_figure(10, dic)
 
     # f = open('test', 'wb')
     # pickle.dump(dic, f)

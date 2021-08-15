@@ -144,8 +144,8 @@ def trainIters(encoder, decoder, n_iters, print_every=1000, plot_every=100, lear
     print_loss_total = 0  # Reset every print_every
     plot_loss_total = 0  # Reset every plot_every
     # kld_delta = (0.5 - KLD_weight) / ((n_iters - 20000) // print_every)
-    kld_delta = 0.5 / 10000
-    teacher_forcing_delta = (teacher_forcing_ratio - 0.5) / ((n_iters // 2) // print_every)
+    kld_delta = 0.4 / 10000
+    teacher_forcing_delta = (teacher_forcing_ratio - 0.6) / ((n_iters // 2) // print_every)
 
     # Best record and weight
     best_record = 0

@@ -247,11 +247,11 @@ def trainIters(encoder, decoder, n_iters, print_every=1000, plot_every=500, lear
     # Draw figure
     draw_figure(n_iters // print_every, recorder)
 
-    # print('save the model..')
-    # encoder.load_state_dict(best_encoder)
-    # decoder.load_state_dict(best_decoder)
-    # torch.save(encoder, 'encoder.pth')
-    # torch.save(decoder, 'decoder.pth')
+    print('save the model..')
+    encoder.load_state_dict(best_encoder)
+    decoder.load_state_dict(best_decoder)
+    torch.save(encoder, 'encoder.pth')
+    torch.save(decoder, 'decoder.pth')
 
 
 if __name__ == "__main__":

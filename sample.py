@@ -206,8 +206,8 @@ def trainIters(encoder, decoder, n_iters, print_every=1000, plot_every=100, lear
             # if iter >= 20000:
             #     KLD_weight += kld_delta
             # Teacher forcing decrease
-            # if iter >= n_iters // 2:
-            #     teacher_forcing_ratio -= teacher_forcing_delta
+            if iter >= n_iters // 2:
+                teacher_forcing_ratio -= teacher_forcing_delta
 
         # Cyclical kld annealing
         if iter >= 20000:

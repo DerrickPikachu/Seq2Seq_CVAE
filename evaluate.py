@@ -144,11 +144,12 @@ if __name__ == "__main__":
     best_bleu = 0
     best_candidate = None
 
-    for i in range(20):
+    for i in range(10):
         candidate, bleu = evaluate(encoder, decoder, dataset)
-        if bleu > best_bleu:
-            best_bleu = bleu
-            best_candidate = candidate
+        best_bleu += bleu
+        # if bleu > best_bleu:
+        #     best_bleu = bleu
+        #     best_candidate = candidate
 
-    print(best_candidate)
-    print(f'BLEU-4 score: {best_bleu}')
+    # print(best_candidate)
+    print(f'BLEU-4 score: {best_bleu / 10}')

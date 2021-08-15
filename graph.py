@@ -1,3 +1,5 @@
+import pickle
+
 import matplotlib.pyplot as plt
 
 
@@ -43,4 +45,13 @@ if __name__ == "__main__":
         'tf_ratio': [1, 1, 1, 1, 1],
         'gau': [0, 0, 0.05, 0.12, 0.25]
     }
-    draw_figure(5, dic)
+    # draw_figure(5, dic)
+
+    # f = open('test', 'wb')
+    # pickle.dump(dic, f)
+    # f.close()
+
+    # f = open('test', 'rb')
+    # output = pickle.load(f)
+    # print(output)
+    # f.close()

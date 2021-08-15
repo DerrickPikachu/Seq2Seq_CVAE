@@ -1,6 +1,7 @@
 from __future__ import unicode_literals, print_function, division
 
 import copy
+import pickle
 from io import open
 import unicodedata
 import string
@@ -21,6 +22,7 @@ import numpy as np
 from os import system
 from nltk.translate.bleu_score import SmoothingFunction, sentence_bleu
 from dataLoader import TenseSet, readData, TestSet
+from graph import draw_figure
 
 """========================================================================================
 The sample.py includes the following template functions:
@@ -134,18 +136,27 @@ def KLD_lose(mean, logvar):
     return -0.5 * torch.sum(1 + logvar - mean.pow(2) - logvar.exp())
 
 
-def trainIters(encoder, decoder, n_iters, print_every=1000, plot_every=100, learning_rate=0.01):
+def trainIters(encoder, decoder, n_iters, print_every=1000, plot_every=500, learning_rate=0.01):
     global KLD_weight
     global teacher_forcing_ratio
 
     # Init variable
     start = time.time()
-    plot_losses = []
     print_loss_total = 0  # Reset every print_every
     plot_loss_total = 0  # Reset every plot_every
     # kld_delta = (0.5 - KLD_weight) / ((n_iters - 20000) // print_every)
     kld_delta = 0.3 / 10000
     teacher_forcing_delta = (teacher_forcing_ratio - 0.6) / ((n_iters // 2) // print_every)
+
+    # Record Dict
+    recorder = {
+        'kld': [],
+        'entropy': [],
+        'bleu': [],
+        'kld_weight': [],
+        'tf_ratio': [],
+        'gau': []
+    }
 
     # Best record and weight
     best_record = 0
@@ -173,7 +184,7 @@ def trainIters(encoder, decoder, n_iters, print_every=1000, plot_every=100, lear
 
         # Forward pass
         ce_loss, kld_loss, loss = train(input_tensor, target_tensor, types, encoder,
-                                  decoder, encoder_optimizer, decoder_optimizer, criterion)
+                                        decoder, encoder_optimizer, decoder_optimizer, criterion)
         print_loss_total += loss
         plot_loss_total += loss
 
@@ -202,6 +213,14 @@ def trainIters(encoder, decoder, n_iters, print_every=1000, plot_every=100, lear
             print(f'Gaussian score: {gau_score}')
             print('-' * 30)
 
+            # Record the data
+            recorder['kld'].append(kld_loss)
+            recorder['entropy'].append(ce_loss)
+            recorder['bleu'].append(bleu_score)
+            recorder['kld_weight'].append(KLD_weight)
+            recorder['tf_ratio'].append(teacher_forcing_ratio)
+            recorder['gau'].append(gau_score)
+
             # Monotonic kld annealing
             # if iter >= 20000:
             #     KLD_weight += kld_delta
@@ -219,6 +238,15 @@ def trainIters(encoder, decoder, n_iters, print_every=1000, plot_every=100, lear
     print('Finish')
     # print(f'Best BLEU-4: {best_record}')
     # print(f'Best Gaussian score: {best_record}')
+
+    # Store the result
+    file = open('record', 'wb')
+    pickle.dump(recorder, file)
+    file.close()
+
+    # Draw figure
+    draw_figure(n_iters // print_every, recorder)
+
     print('save the model..')
     encoder.load_state_dict(best_encoder)
     decoder.load_state_dict(best_decoder)
@@ -229,4 +257,4 @@ def trainIters(encoder, decoder, n_iters, print_every=1000, plot_every=100, lear
 if __name__ == "__main__":
     encoder1 = EncoderRNN(vocab_size, hidden_size).to(device)
     decoder1 = DecoderRNN(hidden_size, vocab_size).to(device)
-    trainIters(encoder1, decoder1, 200000, print_every=1000, learning_rate=LR)
+    trainIters(encoder1, decoder1, 5000, print_every=500, learning_rate=LR)

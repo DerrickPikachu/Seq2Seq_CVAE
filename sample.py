@@ -182,10 +182,10 @@ def trainIters(encoder, decoder, n_iters, print_every=1000, plot_every=100, lear
             candidate, bleu_score = evaluate(encoder, decoder, test_set)
             generated_word, gau_score = evaluate_gaussian(decoder)
             # if bleu_score > best_record:
-            if gau_score > best_record:
-                best_record = bleu_score
-                # best_encoder = copy.deepcopy(encoder.state_dict())
-                # best_decoder = copy.deepcopy(decoder.state_dict())
+            if gau_score >= 0.3 and bleu_score >= 0.7:
+                # best_record = bleu_score
+                best_encoder = copy.deepcopy(encoder.state_dict())
+                best_decoder = copy.deepcopy(decoder.state_dict())
 
             print_loss_avg = print_loss_total / print_every
             print_loss_total = 0
@@ -218,10 +218,10 @@ def trainIters(encoder, decoder, n_iters, print_every=1000, plot_every=100, lear
 
     print('Finish')
     # print(f'Best BLEU-4: {best_record}')
-    print(f'Best Gaussian score: {best_record}')
+    # print(f'Best Gaussian score: {best_record}')
     print('save the model..')
-    # encoder.load_state_dict(best_encoder)
-    # decoder.load_state_dict(best_decoder)
+    encoder.load_state_dict(best_encoder)
+    decoder.load_state_dict(best_decoder)
     torch.save(encoder, 'gau_encoder.pth')
     torch.save(decoder, 'gau_decoder.pth')
 

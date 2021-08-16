@@ -33,7 +33,6 @@ words = [['consult', 'consults', 'consulting', 'consulted'],
 
 the order should be : simple present, third person, present progressive, past
 ============================================================================"""
-# TODO: Survey the detail of Gaussian score
 def gaussian_score(words):
     words_list = []
     score = 0

@@ -59,7 +59,7 @@ empty_input_ratio = 0.1
 # lower value giving better reconstruction with less structured latent space
 # (though their focus is specifically on learning disentangled representations)
 KLD_weight = 0.0
-LR = 0.01
+LR = 0.05
 MAX_LENGTH = 10
 
 
@@ -176,7 +176,6 @@ def trainIters(encoder, decoder, n_iters, print_every=1000, plot_every=500, lear
     criterion = nn.CrossEntropyLoss()
 
     for iter in range(1, n_iters + 1):
-        # TODO: decrease the KLD_weight and teacher forcing ratio through the epochs
         encoder.train(), decoder.train()
         training_pair = training_pairs[iter - 1]
         input_tensor = training_pair[0].to(device)
@@ -252,11 +251,11 @@ def trainIters(encoder, decoder, n_iters, print_every=1000, plot_every=500, lear
     # Draw figure
     draw_figure(n_iters // print_every, recorder)
 
-    print('save the model..')
-    encoder.load_state_dict(best_encoder)
-    decoder.load_state_dict(best_decoder)
-    torch.save(encoder, 'encoder_tf.pth')
-    torch.save(decoder, 'decoder_tf.pth')
+    # print('save the model..')
+    # encoder.load_state_dict(best_encoder)
+    # decoder.load_state_dict(best_decoder)
+    # torch.save(encoder, 'encoder_tf.pth')
+    # torch.save(decoder, 'decoder_tf.pth')
 
 
 if __name__ == "__main__":

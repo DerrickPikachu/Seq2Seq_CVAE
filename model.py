@@ -12,7 +12,6 @@ def reparameter(mu, log_var):
 
 
 # Encoder
-# TODO: apply LSTM
 class EncoderRNN(nn.Module):
     def __init__(self, input_size, hidden_size):
         super(EncoderRNN, self).__init__()

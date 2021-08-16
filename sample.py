@@ -205,12 +205,12 @@ def trainIters(encoder, decoder, n_iters, print_every=1000, plot_every=500, lear
             kld_loss_avg = kld_loss_total / print_every
             print_loss_total, ce_loss_total, kld_loss_total = 0, 0, 0
 
-            print(generated_word)
+            # print(generated_word)
             print('%s (%d %d%%) %.4f' % (timeSince(start, iter / n_iters),
                                          iter, iter / n_iters * 100, print_loss_avg))
             print(f'cross_entropy: {ce_loss_avg}')
             print(f'KL divergence: {kld_loss_avg}')
-            # print(candidate)
+            print(candidate)
             print(f'KLD_weight: {KLD_weight}')
             print(f'teacher forcing ratio: {teacher_forcing_ratio}')
             print(f'Average BLEU-4 score : {bleu_score}')
@@ -244,12 +244,12 @@ def trainIters(encoder, decoder, n_iters, print_every=1000, plot_every=500, lear
     # print(f'Best Gaussian score: {best_record}')
 
     # Store the result
-    file = open('record_decrease_tf', 'wb')
-    pickle.dump(recorder, file)
-    file.close()
+    # file = open('record_decrease_tf', 'wb')
+    # pickle.dump(recorder, file)
+    # file.close()
 
     # Draw figure
-    draw_figure(n_iters // print_every, recorder)
+    # draw_figure(n_iters // print_every, recorder)
 
     # print('save the model..')
     # encoder.load_state_dict(best_encoder)

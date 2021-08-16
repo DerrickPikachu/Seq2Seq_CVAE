@@ -204,7 +204,7 @@ def trainIters(encoder, decoder, n_iters, print_every=1000, plot_every=500, lear
             print_loss_avg = print_loss_total / print_every
             ce_loss_avg = ce_loss_total / print_every
             kld_loss_avg = kld_loss_total / print_every
-            print_loss_total = 0
+            print_loss_total, ce_loss_total, kld_loss_total = 0, 0, 0
 
             print(generated_word)
             print('%s (%d %d%%) %.4f' % (timeSince(start, iter / n_iters),

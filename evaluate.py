@@ -154,5 +154,7 @@ if __name__ == "__main__":
 
     # print(best_candidate)
     for i in range(len(best_candidate)):
-        print(f'Input: {dataset.word_set[i][0]}\tTarget: {dataset.word_set[i][1]}\tPrediction: {best_candidate[i]}')
+        print(f'Input: {dataset.word_set[i][0]:<20}\t'
+              f'Target: {dataset.word_set[i][1]:<20}\t'
+              f'Prediction: {best_candidate[i]:<20}')
     print(f'BLEU-4 score: {best_bleu}')

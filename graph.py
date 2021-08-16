@@ -33,7 +33,7 @@ def draw_figure(points: int, data_dic: dict):
     # fig.tight_layout()
     fig.legend()
     # plt.show()
-    plt.savefig('train_figure1.png')
+    plt.savefig('train_figure2.png')
 
 
 if __name__ == "__main__":

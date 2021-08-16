@@ -59,7 +59,7 @@ empty_input_ratio = 0.1
 # lower value giving better reconstruction with less structured latent space
 # (though their focus is specifically on learning disentangled representations)
 KLD_weight = 0.0
-LR = 0.05
+LR = 0.01
 MAX_LENGTH = 10
 
 
@@ -233,11 +233,11 @@ def trainIters(encoder, decoder, n_iters, print_every=1000, plot_every=500, lear
                 teacher_forcing_ratio -= teacher_forcing_delta
 
         # Cyclical kld annealing
-        if iter >= 20000:
-            if iter % 1e4 == 0:
-                KLD_weight = 0
-            else:
-                KLD_weight += kld_delta
+        # if iter >= 20000:
+        #     if iter % 1e4 == 0:
+        #         KLD_weight = 0
+        #     else:
+        #         KLD_weight += kld_delta
 
     print('Finish')
     # print(f'Best BLEU-4: {best_record}')
@@ -261,4 +261,4 @@ def trainIters(encoder, decoder, n_iters, print_every=1000, plot_every=500, lear
 if __name__ == "__main__":
     encoder1 = EncoderRNN(vocab_size, hidden_size).to(device)
     decoder1 = DecoderRNN(hidden_size, vocab_size).to(device)
-    trainIters(encoder1, decoder1, 200000, print_every=500, learning_rate=LR)
+    trainIters(encoder1, decoder1, 75000, print_every=500, learning_rate=LR)

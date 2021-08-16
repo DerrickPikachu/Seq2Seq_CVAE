@@ -19,7 +19,7 @@ def draw_figure(points: int, data_dic: dict):
 
     ax1.set_ylabel('Loss')
     ax1.plot(x_axis, data_dic['kld'], label='KLD', linewidth=2)
-    ax1.plot(x_axis, data_dic['entropy'], label='CrossEntropy', linewidth=2)
+    ax1.plot(x_axis, data_dic['entropy'], color='orange', label='CrossEntropy', linewidth=2)
     ax1.tick_params(axis='y')
 
     ax2 = ax1.twinx()
@@ -32,8 +32,8 @@ def draw_figure(points: int, data_dic: dict):
 
     # fig.tight_layout()
     fig.legend()
-    # plt.show()
-    plt.savefig('train_figure2.png')
+    plt.show()
+    # plt.savefig('training_figure/train_figure2.png')
 
 
 if __name__ == "__main__":
@@ -45,10 +45,10 @@ if __name__ == "__main__":
     #     'tf_ratio': [1, 1, 1, 1, 1],
     #     'gau': [0, 0, 0.05, 0.12, 0.25]
     # }
-    file = open('record', 'rb')
+    file = open('training_racord/record_decrease_tf', 'rb')
     dic = pickle.load(file)
-    print(dic['entropy'])
-    # draw_figure(400, dic)
+    # print(dic['entropy'])
+    draw_figure(400, dic)
 
     # f = open('test', 'wb')
     # pickle.dump(dic, f)

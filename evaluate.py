@@ -138,6 +138,8 @@ if __name__ == "__main__":
 
     generated_word, gau_score = evaluate_gaussian(decoder)
     # print(generated_word)
+    for words in generated_word:
+        print(words)
     print(f'Gaussian score: {gau_score}')
 
     best_bleu = 0
@@ -151,4 +153,6 @@ if __name__ == "__main__":
             best_candidate = candidate
 
     # print(best_candidate)
+    for i in range(len(best_candidate)):
+        print(f'Input: {dataset.word_set[i][0]}\tTarget: {dataset.word_set[i][1]}\tPrediction: {best_candidate[i]}')
     print(f'BLEU-4 score: {best_bleu}')

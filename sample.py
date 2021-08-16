@@ -143,7 +143,8 @@ def trainIters(encoder, decoder, n_iters, print_every=1000, plot_every=500, lear
     # Init variable
     start = time.time()
     print_loss_total = 0  # Reset every print_every
-    plot_loss_total = 0  # Reset every plot_every
+    kld_loss_total = 0
+    ce_loss_total = 0
     # kld_delta = (0.5 - KLD_weight) / ((n_iters - 20000) // print_every)
     kld_delta = 0.3 / 10000
     teacher_forcing_delta = (teacher_forcing_ratio - 0.6) / ((n_iters // 2) // print_every)
@@ -186,7 +187,9 @@ def trainIters(encoder, decoder, n_iters, print_every=1000, plot_every=500, lear
         ce_loss, kld_loss, loss = train(input_tensor, target_tensor, types, encoder,
                                         decoder, encoder_optimizer, decoder_optimizer, criterion)
         print_loss_total += loss
-        plot_loss_total += loss
+        ce_loss_total += ce_loss
+        kld_loss_total += kld_loss
+
 
         # Show the current status
         if iter % print_every == 0:
@@ -199,13 +202,15 @@ def trainIters(encoder, decoder, n_iters, print_every=1000, plot_every=500, lear
                 best_decoder = copy.deepcopy(decoder.state_dict())
 
             print_loss_avg = print_loss_total / print_every
+            ce_loss_avg = ce_loss_total / print_every
+            kld_loss_avg = kld_loss_total / print_every
             print_loss_total = 0
 
             print(generated_word)
             print('%s (%d %d%%) %.4f' % (timeSince(start, iter / n_iters),
                                          iter, iter / n_iters * 100, print_loss_avg))
-            print(f'cross_entropy: {ce_loss}')
-            print(f'KL divergence: {kld_loss}')
+            print(f'cross_entropy: {ce_loss_avg}')
+            print(f'KL divergence: {kld_loss_avg}')
             # print(candidate)
             print(f'KLD_weight: {KLD_weight}')
             print(f'teacher forcing ratio: {teacher_forcing_ratio}')
@@ -214,8 +219,8 @@ def trainIters(encoder, decoder, n_iters, print_every=1000, plot_every=500, lear
             print('-' * 30)
 
             # Record the data
-            recorder['kld'].append(kld_loss)
-            recorder['entropy'].append(ce_loss)
+            recorder['kld'].append(kld_loss_avg)
+            recorder['entropy'].append(ce_loss_avg)
             recorder['bleu'].append(bleu_score)
             recorder['kld_weight'].append(KLD_weight)
             recorder['tf_ratio'].append(teacher_forcing_ratio)

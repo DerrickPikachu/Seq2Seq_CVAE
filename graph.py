@@ -24,10 +24,10 @@ def draw_figure(points: int, data_dic: dict):
 
     ax2 = ax1.twinx()
     ax2.set_ylabel('score/weight')
-    ax2.plot(x_axis, data_dic['bleu'], 'ro', markersize=3, label='BLEU4-score', color='green')
+    ax2.plot(x_axis, data_dic['bleu'], 'ro', markersize=2, label='BLEU4-score', color='green')
     ax2.plot(x_axis, data_dic['kld_weight'], label='KLD_weight', color='red', linestyle='--')
     ax2.plot(x_axis, data_dic['tf_ratio'], label='Teacher ratio', color='purple', linestyle='--')
-    ax2.plot(x_axis, data_dic['gau'], 'ro', markersize=3, label='Gaussian Score', color='brown')
+    ax2.plot(x_axis, data_dic['gau'], 'ro', markersize=2, label='Gaussian Score', color='brown')
     ax2.tick_params(axis='y')
 
     # fig.tight_layout()
@@ -47,7 +47,8 @@ if __name__ == "__main__":
     # }
     file = open('record', 'rb')
     dic = pickle.load(file)
-    draw_figure(10, dic)
+    print(dic['entropy'])
+    # draw_figure(400, dic)
 
     # f = open('test', 'wb')
     # pickle.dump(dic, f)
